@@ -4,6 +4,7 @@ using CourseLibrary.API.Services;
 using CourseLibrary.API.Models;
 using CourseLibrary.API.Helpers;
 using System.Collections.Generic;
+using CourseLibrary.API.ResourceParameters;
 using AutoMapper;
 
 namespace Pluralsight.Api.Controllers{
@@ -22,8 +23,8 @@ namespace Pluralsight.Api.Controllers{
         
         [HttpGet]
         [HttpHead]
-        public ActionResult<IEnumerable<AuthorDto>> GetAuthors([FromQuery] string mainCategory, [FromQuery] string searchQuery){
-            var authors = repository.GetAuthors(mainCategory, searchQuery);
+        public ActionResult<IEnumerable<AuthorDto>> GetAuthors([FromQuery] AuthorsResourceParameters parameters){
+            var authors = repository.GetAuthors(parameters);
 
             if(authors == null){
                 return NotFound();
