@@ -1,6 +1,10 @@
 using System;
 using Microsoft.AspNetCore.Mvc;
 using CourseLibrary.API.Services;
+using CourseLibrary.API.Models;
+using CourseLibrary.API.Helpers;
+using System.Collections.Generic;
+using AutoMapper;
 
 namespace Pluralsight.Api.Controllers{
     
@@ -8,19 +12,34 @@ namespace Pluralsight.Api.Controllers{
     [ApiController]
     public class AuthorsController: ControllerBase{
         private readonly ICourseLibraryRepository repository;
-        public AuthorsController(ICourseLibraryRepository _repository)
+        private readonly IMapper mapper;
+        public AuthorsController(ICourseLibraryRepository _repository,
+                                 IMapper _mapper)
         {
             this.repository = _repository ?? throw new ArgumentNullException(nameof(_repository));
+            this.mapper = _mapper ?? throw new NullReferenceException(nameof(_mapper));
         }
         
-        //[HttpGet("api/authors")]
-        public IActionResult GetAuthors(){
-            var authors = repository.GetAuthors();
+        [HttpGet]
+        [HttpHead]
+        public ActionResult<IEnumerable<AuthorDto>> GetAuthors([FromQuery] string mainCategory, [FromQuery] string searchQuery){
+            var authors = repository.GetAuthors(mainCategory, searchQuery);
 
             if(authors == null){
-                return NoContent();
+                return NotFound();
             }
-            return new JsonResult(authors);
+
+            return Ok(mapper.Map<IEnumerable<AuthorDto>>(authors));
+        }
+
+        [HttpGet("{authorId}")]
+        public ActionResult<AuthorDto> GetAuthor(Guid authorId){
+            var author = repository.GetAuthor(authorId);
+            if (author == null){
+                return NotFound();
+            }
+
+            return Ok(mapper.Map<AuthorDto>(author));
         }
     }
 }
