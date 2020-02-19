@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using AutoMapper;
 using System;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CourseLibrary.API
 {
@@ -27,7 +28,24 @@ namespace CourseLibrary.API
             services.AddControllers(config => {
                 config.ReturnHttpNotAcceptable = true;
             })
-            .AddXmlDataContractSerializerFormatters();
+            .AddXmlDataContractSerializerFormatters()
+            .ConfigureApiBehaviorOptions(setup => {
+                setup.InvalidModelStateResponseFactory = context => {
+                    var ProblemDetails = new ValidationProblemDetails(context.ModelState){
+                        Type = "https://courselibrary.com/modelvalidationproblem",
+                        Title = "One or more vaidation errors occurred",
+                        Status = StatusCodes.Status422UnprocessableEntity,
+                        Detail = "See errors for more details",
+                        Instance = context.HttpContext.Request.Path
+                    };
+
+                    ProblemDetails.Extensions.Add("traceId", context.HttpContext.TraceIdentifier);
+
+                    return new UnprocessableEntityObjectResult(ProblemDetails){
+                        ContentTypes = {"application/problem+json"}
+                    };
+                };
+            });
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

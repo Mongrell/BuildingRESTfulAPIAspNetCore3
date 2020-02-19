@@ -2,7 +2,6 @@ using System;
 using Microsoft.AspNetCore.Mvc;
 using CourseLibrary.API.Services;
 using CourseLibrary.API.Models;
-using CourseLibrary.API.Helpers;
 using System.Collections.Generic;
 using CourseLibrary.API.ResourceParameters;
 using AutoMapper;
