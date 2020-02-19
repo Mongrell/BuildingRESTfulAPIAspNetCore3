@@ -29,7 +29,7 @@ namespace Pluralsight.Api.Controllers{
             return Ok(mapper.Map<IEnumerable<CourseDto>>(courses));
         }
 
-        [HttpGet("{courseId}")]
+        [HttpGet("{courseId}", Name="GetCourseForAuthor")]
         public ActionResult<CourseDto> GetCourseForAuthor(Guid authorId, Guid courseId){
             if (!courseRepo.AuthorExists(authorId))
             {
@@ -41,6 +41,21 @@ namespace Pluralsight.Api.Controllers{
                 return NotFound();
             }
             return Ok(mapper.Map<CourseDto>(course));
+        }
+
+        [HttpPost]
+        public ActionResult<CourseDto> CreateCourseForAuthor(Guid authorId, CourseForCreationDto courseForCreation){
+            if(!courseRepo.AuthorExists(authorId)){
+                return NotFound();
+            }
+            
+            var course = mapper.Map<Course>(courseForCreation);
+            courseRepo.AddCourse(authorId, course);
+            courseRepo.Save();
+
+            var courseResult = mapper.Map<CourseDto>(course);
+
+            return CreatedAtRoute("GetCourseForAuthor", new { authorId = authorId, courseId = courseResult.Id }, courseResult);
         }
     }
 }

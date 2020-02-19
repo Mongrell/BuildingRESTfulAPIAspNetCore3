@@ -6,6 +6,7 @@ using CourseLibrary.API.Helpers;
 using System.Collections.Generic;
 using CourseLibrary.API.ResourceParameters;
 using AutoMapper;
+using CourseLibrary.API.Entities;
 
 namespace Pluralsight.Api.Controllers{
     
@@ -33,7 +34,7 @@ namespace Pluralsight.Api.Controllers{
             return Ok(mapper.Map<IEnumerable<AuthorDto>>(authors));
         }
 
-        [HttpGet("{authorId}")]
+        [HttpGet("{authorId}", Name="GetAuthor")]
         public ActionResult<AuthorDto> GetAuthor(Guid authorId){
             var author = repository.GetAuthor(authorId);
             if (author == null){
@@ -41,6 +42,23 @@ namespace Pluralsight.Api.Controllers{
             }
 
             return Ok(mapper.Map<AuthorDto>(author));
+        }
+
+        [HttpPost]
+        public ActionResult<AuthorDto> CreateAuthor(AuthorForCreationDto authorForCreation){
+            var author = mapper.Map<Author>(authorForCreation);
+            repository.AddAuthor(author);
+            repository.Save();
+
+            var authorResult = mapper.Map<AuthorDto>(author);
+
+            return CreatedAtRoute("GetAuthor", new { authorId = author.Id }, authorResult);
+        }
+
+        [HttpOptions]
+        public IActionResult GetAuthorsOptions(){
+            Response.Headers.Add("Allow", "GET,OPTIONS,POST");
+            return Ok();
         }
     }
 }
