@@ -59,5 +59,19 @@ namespace Pluralsight.Api.Controllers{
             Response.Headers.Add("Allow", "GET,OPTIONS,POST");
             return Ok();
         }
+
+        [HttpDelete("{authorId}")]
+        public ActionResult DeleteAuthor(Guid authorId){
+            var authorToDelete = repository.GetAuthor(authorId);
+
+            if(authorToDelete == null){
+                return NotFound();
+            }
+
+            repository.DeleteAuthor(authorToDelete);
+            repository.Save();
+
+            return NoContent();
+        }
     }
 }

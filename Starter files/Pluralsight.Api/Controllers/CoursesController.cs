@@ -134,6 +134,24 @@ namespace Pluralsight.Api.Controllers{
             return NoContent();
         }
 
+        [HttpDelete("{courseId}")]
+        public ActionResult DeleteCourseForAuthor(Guid authorId, Guid courseId){
+            if(!courseRepo.AuthorExists(authorId)){
+                return NotFound();
+            }
+            
+            var courseToDelete = courseRepo.GetCourse(authorId, courseId);
+
+            if(courseToDelete == null){
+                return NotFound();
+            }
+
+            courseRepo.DeleteCourse(courseToDelete);
+            courseRepo.Save();
+
+            return NoContent();
+        }
+
         public override ActionResult ValidationProblem([ActionResultObjectValue] ModelStateDictionary modelStateDictionary){
             var options = HttpContext.RequestServices.GetRequiredService<IOptions<ApiBehaviorOptions>>();
             return (ActionResult)options.Value.InvalidModelStateResponseFactory(ControllerContext); 
