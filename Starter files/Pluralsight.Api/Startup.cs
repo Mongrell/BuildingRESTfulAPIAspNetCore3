@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Serialization;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using Microsoft.Extensions.Hosting;
 using AutoMapper;
 using System;
@@ -27,6 +29,9 @@ namespace CourseLibrary.API
         {
             services.AddControllers(config => {
                 config.ReturnHttpNotAcceptable = true;
+            })
+            .AddNewtonsoftJson(setup => {
+                setup.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             })
             .AddXmlDataContractSerializerFormatters()
             .ConfigureApiBehaviorOptions(setup => {
