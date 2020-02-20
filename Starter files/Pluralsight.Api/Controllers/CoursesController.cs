@@ -1,4 +1,3 @@
-using System.Net;
 using System.Collections.Generic;
 using System;
 using Microsoft.AspNetCore.Mvc;
@@ -56,6 +55,34 @@ namespace Pluralsight.Api.Controllers{
             var courseResult = mapper.Map<CourseDto>(course);
 
             return CreatedAtRoute("GetCourseForAuthor", new { authorId = authorId, courseId = courseResult.Id }, courseResult);
+        }
+
+        [HttpPut("{courseId}")]
+        public IActionResult UpdateCourseForAuthor(Guid authorId, Guid courseId, CourseForUpdateDto courseForUpdate){
+            if(!courseRepo.AuthorExists(authorId)){
+                return NotFound();
+            }
+            var courseForAuthor = courseRepo.GetCourse(authorId, courseId);
+            if(courseForAuthor == null){
+                var courseToAdd = mapper.Map<Course>(courseForUpdate);
+                courseToAdd.Id = courseId;
+
+                courseRepo.AddCourse(authorId, courseToAdd);
+
+                courseRepo.Save();
+
+                var courseToReturn = mapper.Map<CourseDto>(courseToAdd);
+
+                return CreatedAtRoute("GetCourseForAuthor", new[] { authorId, courseId = courseToReturn.Id }, courseToReturn);
+            }
+
+            mapper.Map(courseForUpdate, courseForAuthor);
+
+            courseRepo.UpdateCourse(courseForAuthor);
+
+            courseRepo.Save();
+
+            return NoContent();
         }
     }
 }

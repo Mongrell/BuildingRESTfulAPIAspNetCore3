@@ -4,15 +4,9 @@ using System;
 using System.Collections.Generic;
 
 namespace CourseLibrary.API.Models{
-    
-    [CourseTitleMustBeDifferentFromDescription]
-    public class CourseForCreationDto{
+    public class CourseForCreationDto: CourseForManipulation{
         
-        [Required]
-        [MaxLength(100)]
-        public string Title { get; set; }
-        [MaxLength(1500)]
-        public string Description { get; set; }
+        
 
         // public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         // {
